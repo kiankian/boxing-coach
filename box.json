@@ -1,0 +1,174 @@
+{
+  "punches": [
+    {
+      "timestamp_of_outcome": "00:02.1",
+      "result": "landed",
+      "punch_type": "rear hook",
+      "bag_zone": "high",
+      "feedback": "Good hip and shoulder rotation to start, generating solid power. Try to bring the hand straight back to your chin after impact for better defense.",
+      "punch_quality": "good",
+      "total_good_punches": 1,
+      "total_bad_punches": 0
+    },
+    {
+      "timestamp_of_outcome": "00:02.4",
+      "result": "landed",
+      "punch_type": "lead hook",
+      "bag_zone": "high",
+      "feedback": "",
+      "punch_quality": "good",
+      "total_good_punches": 2,
+      "total_bad_punches": 0
+    },
+    {
+      "timestamp_of_outcome": "00:02.9",
+      "result": "landed",
+      "punch_type": "rear cross",
+      "bag_zone": "high",
+      "feedback": "",
+      "punch_quality": "good",
+      "total_good_punches": 3,
+      "total_bad_punches": 0
+    },
+    {
+      "timestamp_of_outcome": "00:03.3",
+      "result": "landed",
+      "punch_type": "lead hook",
+      "bag_zone": "high",
+      "feedback": "",
+      "punch_quality": "good",
+      "total_good_punches": 4,
+      "total_bad_punches": 0
+    },
+    {
+      "timestamp_of_outcome": "00:04.9",
+      "result": "landed",
+      "punch_type": "lead hook",
+      "bag_zone": "high",
+      "feedback": "Your lead hook is a bit wide and slapping the bag. Try keeping your elbow bent closer to a 90-degree angle and landing with your primary knuckles.",
+      "punch_quality": "bad",
+      "total_good_punches": 4,
+      "total_bad_punches": 1
+    },
+    {
+      "timestamp_of_outcome": "00:05.3",
+      "result": "landed",
+      "punch_type": "rear cross",
+      "bag_zone": "high",
+      "feedback": "",
+      "punch_quality": "good",
+      "total_good_punches": 5,
+      "total_bad_punches": 1
+    },
+    {
+      "timestamp_of_outcome": "00:05.8",
+      "result": "landed",
+      "punch_type": "lead hook",
+      "bag_zone": "high",
+      "feedback": "",
+      "punch_quality": "good",
+      "total_good_punches": 6,
+      "total_bad_punches": 1
+    },
+    {
+      "timestamp_of_outcome": "00:06.1",
+      "result": "landed",
+      "punch_type": "rear cross",
+      "bag_zone": "high",
+      "feedback": "",
+      "punch_quality": "good",
+      "total_good_punches": 7,
+      "total_bad_punches": 1
+    },
+    {
+      "timestamp_of_outcome": "00:06.4",
+      "result": "landed",
+      "punch_type": "lead hook",
+      "bag_zone": "high",
+      "feedback": "",
+      "punch_quality": "good",
+      "total_good_punches": 8,
+      "total_bad_punches": 1
+    },
+    {
+      "timestamp_of_outcome": "00:07.7",
+      "result": "landed",
+      "punch_type": "lead hook",
+      "bag_zone": "high",
+      "feedback": "You’re dropping your rear (right) hand significantly when you throw the lead hook, leaving your chin exposed. Keep that non-punching hand glued to your jaw.",
+      "punch_quality": "bad",
+      "total_good_punches": 8,
+      "total_bad_punches": 2
+    },
+    {
+      "timestamp_of_outcome": "00:08.7",
+      "result": "landed",
+      "punch_type": "lead hook",
+      "bag_zone": "high",
+      "feedback": "",
+      "punch_quality": "good",
+      "total_good_punches": 9,
+      "total_bad_punches": 2
+    },
+    {
+      "timestamp_of_outcome": "00:09.1",
+      "result": "landed",
+      "punch_type": "rear cross",
+      "bag_zone": "high",
+      "feedback": "",
+      "punch_quality": "good",
+      "total_good_punches": 10,
+      "total_bad_punches": 2
+    },
+    {
+      "timestamp_of_outcome": "00:09.6",
+      "result": "landed",
+      "punch_type": "lead body hook",
+      "bag_zone": "mid",
+      "feedback": "Good level change for the body shot. To maximize power, pivot more on your lead foot and feel your weight transfer through the punch.",
+      "punch_quality": "good",
+      "total_good_punches": 11,
+      "total_bad_punches": 2
+    },
+    {
+      "timestamp_of_outcome": "00:10.0",
+      "result": "landed",
+      "punch_type": "rear cross",
+      "bag_zone": "high",
+      "feedback": "",
+      "punch_quality": "good",
+      "total_good_punches": 12,
+      "total_bad_punches": 2
+    },
+    {
+      "timestamp_of_outcome": "00:10.5",
+      "result": "landed",
+      "punch_type": "lead body hook",
+      "bag_zone": "mid",
+      "feedback": "",
+      "punch_quality": "good",
+      "total_good_punches": 13,
+      "total_bad_punches": 2
+    },
+    {
+      "timestamp_of_outcome": "00:10.8",
+      "result": "landed",
+      "punch_type": "rear cross",
+      "bag_zone": "high",
+      "feedback": "",
+      "punch_quality": "good",
+      "total_good_punches": 14,
+      "total_bad_punches": 2
+    },
+    {
+      "timestamp_of_outcome": "00:11.3",
+      "result": "landed",
+      "punch_type": "lead hook",
+      "bag_zone": "high",
+      "feedback": "You’re leaning forward and reaching with your chin on this punch, which puts you off-balance. Keep your head behind your lead knee and rotate your torso instead of leaning.",
+      "punch_quality": "bad",
+      "total_good_punches": 14,
+      "total_bad_punches": 3
+    }
+  ]
+}
