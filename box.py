@@ -129,6 +129,10 @@ for punch in punch_data['punches']:
     punch['feedback_end_frame'] = punch['frame_number'] + (4 * process_fps)  # Show feedback for 4 seconds
 
 last_head = None
+last_arms = None
+previous_arms = None
+arm_trail = []
+max_trail_length = 10
 frame_count = 0
 process_every_n_frames = int(process_fps / 20)  # Process at 3 fps
 last_punch_result = None
@@ -158,6 +162,39 @@ while process_cap.isOpened() and display_cap.isOpened():
             head_x = int(head.x * display_width)
             head_y = int(head.y * display_height)
             last_head = (head_x, head_y)
+            
+            # Get arm landmarks
+            landmarks = results.pose_landmarks.landmark
+            # Left arm: shoulder (11), elbow (13), wrist (15)
+            # Right arm: shoulder (12), elbow (14), wrist (16)
+            left_shoulder = (int(landmarks[11].x * display_width), int(landmarks[11].y * display_height))
+            left_elbow = (int(landmarks[13].x * display_width), int(landmarks[13].y * display_height))
+            left_wrist = (int(landmarks[15].x * display_width), int(landmarks[15].y * display_height))
+            
+            right_shoulder = (int(landmarks[12].x * display_width), int(landmarks[12].y * display_height))
+            right_elbow = (int(landmarks[14].x * display_width), int(landmarks[14].y * display_height))
+            right_wrist = (int(landmarks[16].x * display_width), int(landmarks[16].y * display_height))
+            
+            current_arms = {
+                'left_shoulder': left_shoulder,
+                'left_elbow': left_elbow,
+                'left_wrist': left_wrist,
+                'right_shoulder': right_shoulder,
+                'right_elbow': right_elbow,
+                'right_wrist': right_wrist
+            }
+            
+            # Store for trail visualization (always add current position)
+            arm_trail.append({
+                'left_wrist': left_wrist,
+                'right_wrist': right_wrist,
+                'frame': frame_count
+            })
+            if len(arm_trail) > max_trail_length:
+                arm_trail.pop(0)
+            
+            previous_arms = last_arms
+            last_arms = current_arms
 
     # Draw the arrow and name if we have a head position
     if last_head is not None:
@@ -181,6 +218,134 @@ while process_cap.isOpened() and display_cap.isOpened():
         cv2.putText(display_frame, text, (text_x, text_y), font, 2.5, (0, 0, 0), 15, cv2.LINE_AA)  # Reduced from 3.0 to 2.5
         # White fill
         cv2.putText(display_frame, text, (text_x, text_y), font, 2.5, (255, 255, 255), 6, cv2.LINE_AA)  # Reduced from 3.0 to 2.5
+
+    # Draw arm skeleton if we have arm positions
+    if last_arms is not None:
+        arm_color = (0, 255, 255)  # Yellow for arms
+        arm_thickness = 4
+        
+        # Draw left arm
+        cv2.line(display_frame, last_arms['left_shoulder'], last_arms['left_elbow'], arm_color, arm_thickness)
+        cv2.line(display_frame, last_arms['left_elbow'], last_arms['left_wrist'], arm_color, arm_thickness)
+        
+        # Draw right arm
+        cv2.line(display_frame, last_arms['right_shoulder'], last_arms['right_elbow'], arm_color, arm_thickness)
+        cv2.line(display_frame, last_arms['right_elbow'], last_arms['right_wrist'], arm_color, arm_thickness)
+        
+        # Draw joint circles
+        joint_radius = 6
+        joint_color = (0, 0, 255)  # Red for joints
+        cv2.circle(display_frame, last_arms['left_shoulder'], joint_radius, joint_color, -1)
+        cv2.circle(display_frame, last_arms['left_elbow'], joint_radius, joint_color, -1)
+        cv2.circle(display_frame, last_arms['left_wrist'], joint_radius, joint_color, -1)
+        cv2.circle(display_frame, last_arms['right_shoulder'], joint_radius, joint_color, -1)
+        cv2.circle(display_frame, last_arms['right_elbow'], joint_radius, joint_color, -1)
+        cv2.circle(display_frame, last_arms['right_wrist'], joint_radius, joint_color, -1)
+
+
+    # Calculate and display punch power based on arm speed
+    if last_arms and previous_arms:
+        # Calculate wrist speed for punch power visualization
+        left_wrist_speed = np.sqrt((last_arms['left_wrist'][0] - previous_arms['left_wrist'][0])**2 + 
+                                  (last_arms['left_wrist'][1] - previous_arms['left_wrist'][1])**2)
+        right_wrist_speed = np.sqrt((last_arms['right_wrist'][0] - previous_arms['right_wrist'][0])**2 + 
+                                   (last_arms['right_wrist'][1] - previous_arms['right_wrist'][1])**2)
+        
+        max_speed = max(left_wrist_speed, right_wrist_speed)
+        
+        # Show power meter when speed is significant
+        if max_speed > 10:  # Threshold for showing power
+            power_level = min(max_speed / 50.0, 1.0)  # Normalize to 0-1
+            
+            # Draw power bar in top right
+            bar_x = display_width - 150
+            bar_y = 150
+            bar_width = 100
+            bar_height = 20
+            
+            # Background bar
+            cv2.rectangle(display_frame, (bar_x, bar_y), (bar_x + bar_width, bar_y + bar_height), (50, 50, 50), -1)
+            
+            # Power level bar
+            power_width = int(bar_width * power_level)
+            power_color = (0, 255, 0) if power_level < 0.7 else (0, 255, 255) if power_level < 0.9 else (0, 0, 255)
+            cv2.rectangle(display_frame, (bar_x, bar_y), (bar_x + power_width, bar_y + bar_height), power_color, -1)
+            
+            # Border
+            cv2.rectangle(display_frame, (bar_x, bar_y), (bar_x + bar_width, bar_y + bar_height), (255, 255, 255), 2)
+            
+            # Label
+            cv2.putText(display_frame, "POWER", (bar_x, bar_y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+
+    # Draw guard position indicator
+    if last_arms:
+        # Check if hands are in guard position (near head level and protecting face)
+        left_guard = last_arms['left_wrist'][1] < last_head[1] + 50 if last_head else False
+        right_guard = last_arms['right_wrist'][1] < last_head[1] + 50 if last_head else False
+        
+        # Check if hands are in front of body (defensive position)
+        if last_head:
+            left_front = abs(last_arms['left_wrist'][0] - last_head[0]) < 150
+            right_front = abs(last_arms['right_wrist'][0] - last_head[0]) < 150
+        else:
+            left_front = right_front = False
+        
+        guard_up = (left_guard and left_front) or (right_guard and right_front)
+        
+        # Draw guard status indicator
+        guard_x = 30
+        guard_y = 220
+        guard_text = "GUARD UP" if guard_up else "GUARD DOWN"
+        guard_color = (0, 255, 0) if guard_up else (0, 0, 255)  # Green if up, red if down
+        
+        # Background for guard indicator
+        text_size = cv2.getTextSize(guard_text, cv2.FONT_HERSHEY_SIMPLEX, 0.8, 2)[0]
+        cv2.rectangle(display_frame, (guard_x - 5, guard_y - 25), (guard_x + text_size[0] + 5, guard_y + 5), (0, 0, 0), -1)
+        cv2.rectangle(display_frame, (guard_x - 5, guard_y - 25), (guard_x + text_size[0] + 5, guard_y + 5), guard_color, 2)
+        
+        # Guard text
+        cv2.putText(display_frame, guard_text, (guard_x, guard_y), cv2.FONT_HERSHEY_SIMPLEX, 0.8, guard_color, 2)
+
+    # Punch form analysis overlay
+    if last_arms and previous_arms:
+        # Calculate arm extension for form analysis
+        left_arm_length = np.sqrt((last_arms['left_wrist'][0] - last_arms['left_elbow'][0])**2 + 
+                                 (last_arms['left_wrist'][1] - last_arms['left_elbow'][1])**2)
+        right_arm_length = np.sqrt((last_arms['right_wrist'][0] - last_arms['right_elbow'][0])**2 + 
+                                  (last_arms['right_wrist'][1] - last_arms['right_elbow'][1])**2)
+        
+        # Calculate shoulder width for reference
+        shoulder_width = np.sqrt((last_arms['left_shoulder'][0] - last_arms['right_shoulder'][0])**2 + 
+                                (last_arms['left_shoulder'][1] - last_arms['right_shoulder'][1])**2)
+        
+        # Check if punching (arm extended relative to shoulder width)
+        left_extended = left_arm_length > shoulder_width * 0.8
+        right_extended = right_arm_length > shoulder_width * 0.8
+        
+        if left_extended or right_extended:
+            # Draw punch form indicators
+            form_y = 180
+            
+            # Check punch angle (should be straight, not downward)
+            if left_extended:
+                left_angle = np.arctan2(last_arms['left_wrist'][1] - last_arms['left_elbow'][1], 
+                                      last_arms['left_wrist'][0] - last_arms['left_elbow'][0])
+                left_good_form = abs(left_angle) < 0.5  # Within ~30 degrees of horizontal
+                
+                form_text = "LEFT: GOOD FORM" if left_good_form else "LEFT: IMPROVE ANGLE"
+                form_color = (0, 255, 0) if left_good_form else (0, 165, 255)  # Green or orange
+                cv2.putText(display_frame, form_text, (display_width - 300, form_y), 
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.6, form_color, 2)
+            
+            if right_extended:
+                right_angle = np.arctan2(last_arms['right_wrist'][1] - last_arms['right_elbow'][1], 
+                                       last_arms['right_wrist'][0] - last_arms['right_elbow'][0])
+                right_good_form = abs(right_angle) < 0.5
+                
+                form_text = "RIGHT: GOOD FORM" if right_good_form else "RIGHT: IMPROVE ANGLE"
+                form_color = (0, 255, 0) if right_good_form else (0, 165, 255)
+                cv2.putText(display_frame, form_text, (display_width - 300, form_y + 30), 
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.6, form_color, 2)
 
     # Calculate current punch statistics
     current_good_punches = 0
